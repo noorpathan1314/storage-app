@@ -1,0 +1,5 @@
+/* src/index.css */
+@import "tailwindcss";
+
+/* Yeh line class-based dark mode enable karegi */
+@custom-variant dark (&:is(.dark *));
