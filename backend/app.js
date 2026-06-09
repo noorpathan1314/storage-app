@@ -23,16 +23,28 @@ const app = express();
 app.use(cookieParser(mySecretKey));
 app.use(express.json());
 
-// ✅ Dynamic CORS origin (from environment variable)
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+// ✅ CORS – allow multiple origins (main Vercel + any preview)
+const allowedOrigins = [
+  'https://storage-app-vert.vercel.app',   // tumhara main frontend domain
+  /\.vercel\.app$/                         // sab Vercel preview domains (regex)
+];
+
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.some(allowed => allowed === origin || (allowed instanceof RegExp && allowed.test(origin)))) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
 
-// Static storage (for local development, optional)
+// Static storage (optional)
 app.use("/storage", express.static("storage"));
 
 // Routes
@@ -49,7 +61,7 @@ app.use((err, req, res, next) => {
   res.json(err);
 });
 
-// Dynamic port (from environment variable or fallback to 4000)
+// Dynamic port
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server Started on port ${PORT}`);
