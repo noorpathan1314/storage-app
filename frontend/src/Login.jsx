@@ -101,7 +101,7 @@ const Login = () => {
                 theme="filled_blue"
                 text="continue_with"
                 shape="pill"
-                width="100%"
+              
                 onError={() => console.log("Google login failed")}
                 useOneTap
               />
